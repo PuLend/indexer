@@ -42,7 +42,7 @@ import {
   WithdrawCollateral,
   WithdrawLiquidity
 } from "../generated/schema"
-import { getOrCreateMarket, updateBorrowRate } from "./utils"
+import { getOrCreateMarket, updateBorrowRate, getOrCreateUserLiquidity } from "./utils"
 
 export function handleBorrow(event: BorrowEvent): void {
   let entity = new Borrow(
@@ -293,6 +293,11 @@ export function handleSupplyLiquidity(event: SupplyLiquidityEvent): void {
   market.totalSupplyAssets = market.totalSupplyAssets.plus(event.params.amount)
   market.save()
   updateBorrowRate(market)
+
+  let userLiquidity = getOrCreateUserLiquidity(event.address, event.params.user)
+  userLiquidity.totalDeposited = userLiquidity.totalDeposited.plus(event.params.amount)
+  userLiquidity.currentBalance = userLiquidity.currentBalance.plus(event.params.amount)
+  userLiquidity.save()
 }
 
 export function handleUnpaused(event: UnpausedEvent): void {
@@ -354,4 +359,9 @@ export function handleWithdrawLiquidity(event: WithdrawLiquidityEvent): void {
   market.totalSupplyAssets = market.totalSupplyAssets.minus(event.params.amount)
   market.save()
   updateBorrowRate(market)
+
+  let userLiquidity = getOrCreateUserLiquidity(event.address, event.params.user)
+  userLiquidity.totalWithdrawn = userLiquidity.totalWithdrawn.plus(event.params.amount)
+  userLiquidity.currentBalance = userLiquidity.currentBalance.minus(event.params.amount)
+  userLiquidity.save()
 }

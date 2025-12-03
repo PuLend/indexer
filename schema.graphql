@@ -272,6 +272,15 @@ type InterestRateModelUpgraded @entity(immutable: true) {
   transactionHash: Bytes!
 }
 
+type UserLiquidity @entity(immutable: false) {
+  id: Bytes! # lendingPool-user composite key
+  market: Market!
+  user: Bytes! # user address
+  totalDeposited: BigInt! # Total deposited by user
+  totalWithdrawn: BigInt! # Total withdrawn by user
+  currentBalance: BigInt! # Current balance (deposited - withdrawn)
+}
+
 type Market @entity(immutable: false) {
   id: Bytes! # lendingPool address
   totalBorrowAssets: BigInt!
@@ -287,6 +296,11 @@ type Market @entity(immutable: false) {
   # Calculated State
   borrowRate: BigInt!
   utilization: BigInt!
+
+  # User tracking and deposit cap
+  users: Int! # Count of unique liquidity suppliers
+  depositCap: BigInt! # Maximum deposit allowed (0 = no cap)
+  uniqueSuppliers: [UserLiquidity!]! @derivedFrom(field: "market")
 }
 
 type InterestRateModelConfig @entity(immutable: false) {
