@@ -1,5 +1,6 @@
 import { BigInt, Address, Bytes } from "@graphprotocol/graph-ts";
 import { Market, InterestRateModelConfig, UserLiquidity } from "../generated/schema";
+import { LendingPool } from "../generated/LendingPool/LendingPool";
 
 export const BIGINT_ZERO = BigInt.fromI32(0);
 export const BIGINT_WAD = BigInt.fromString("1000000000000000000"); // 1e18
@@ -99,4 +100,23 @@ export function updateBorrowRate(market: Market): void {
   }
 
   market.save();
+}
+
+export function updateMarketData(marketAddress: Address): void {
+  let market = getOrCreateMarket(marketAddress);
+  let contract = LendingPool.bind(marketAddress);
+
+  let totalBorrowAssets = contract.try_totalBorrowAssets();
+  let totalSupplyAssets = contract.try_totalSupplyAssets();
+
+  if (!totalBorrowAssets.reverted) {
+    market.totalBorrowAssets = totalBorrowAssets.value;
+  }
+
+  if (!totalSupplyAssets.reverted) {
+    market.totalSupplyAssets = totalSupplyAssets.value;
+  }
+
+  market.save();
+  updateBorrowRate(market);
 }

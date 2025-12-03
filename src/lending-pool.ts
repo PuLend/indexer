@@ -42,7 +42,7 @@ import {
   WithdrawCollateral,
   WithdrawLiquidity
 } from "../generated/schema"
-import { getOrCreateMarket, updateBorrowRate, getOrCreateUserLiquidity } from "./utils"
+import { getOrCreateMarket, updateBorrowRate, getOrCreateUserLiquidity, updateMarketData } from "./utils"
 
 export function handleBorrow(event: BorrowEvent): void {
   let entity = new Borrow(
@@ -58,10 +58,7 @@ export function handleBorrow(event: BorrowEvent): void {
 
   entity.save()
 
-  let market = getOrCreateMarket(event.address)
-  market.totalBorrowAssets = market.totalBorrowAssets.plus(event.params.amount)
-  market.save()
-  updateBorrowRate(market)
+  updateMarketData(event.address)
 }
 
 export function handleBorrowTokenSet(event: BorrowTokenSetEvent): void {
@@ -140,6 +137,8 @@ export function handleLiquidation(event: LiquidationEvent): void {
   entity.transactionHash = event.transaction.hash
 
   entity.save()
+
+  updateMarketData(event.address)
 }
 
 export function handleLtvSet(event: LtvSetEvent): void {
@@ -196,10 +195,7 @@ export function handleRepay(event: RepayEvent): void {
 
   entity.save()
 
-  let market = getOrCreateMarket(event.address)
-  market.totalBorrowAssets = market.totalBorrowAssets.minus(event.params.amount)
-  market.save()
-  updateBorrowRate(market)
+  updateMarketData(event.address)
 }
 
 export function handleRoleAdminChanged(event: RoleAdminChangedEvent): void {
@@ -289,10 +285,7 @@ export function handleSupplyLiquidity(event: SupplyLiquidityEvent): void {
 
   entity.save()
 
-  let market = getOrCreateMarket(event.address)
-  market.totalSupplyAssets = market.totalSupplyAssets.plus(event.params.amount)
-  market.save()
-  updateBorrowRate(market)
+  updateMarketData(event.address)
 
   let userLiquidity = getOrCreateUserLiquidity(event.address, event.params.user)
   userLiquidity.totalDeposited = userLiquidity.totalDeposited.plus(event.params.amount)
@@ -355,10 +348,7 @@ export function handleWithdrawLiquidity(event: WithdrawLiquidityEvent): void {
 
   entity.save()
 
-  let market = getOrCreateMarket(event.address)
-  market.totalSupplyAssets = market.totalSupplyAssets.minus(event.params.amount)
-  market.save()
-  updateBorrowRate(market)
+  updateMarketData(event.address)
 
   let userLiquidity = getOrCreateUserLiquidity(event.address, event.params.user)
   userLiquidity.totalWithdrawn = userLiquidity.totalWithdrawn.plus(event.params.amount)
