@@ -5,7 +5,7 @@ import {
   clearStore,
   beforeAll,
   afterAll
-} from "matchstick-as/assembly/index"
+} from "matchstick-as"
 import { BigInt, Address, Bytes } from "@graphprotocol/graph-ts"
 import { Initialized } from "../generated/schema"
 import { Initialized as InitializedEvent } from "../generated/InterestRateModel/InterestRateModel"
