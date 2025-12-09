@@ -1,0 +1,131 @@
+specVersion: 1.3.0
+indexerHints:
+  prune: auto
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum
+    name: LendingPool
+    network: story
+    source:
+      address: "0x848fDD471ebad6CFD8AfBfB58ba243782AD9201C"
+      abi: LendingPool
+      startBlock: 11693991
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      entities:
+        - Borrow
+        - BorrowTokenSet
+        - CollateralTokenSet
+        - Initialized
+        - InterestRateModelSet
+        - Liquidation
+        - LtvSet
+        - MinSupplyAmountSet
+        - Paused
+        - Repay
+        - RoleAdminChanged
+        - RoleGranted
+        - RoleRevoked
+        - RouterSet
+        - SupplyCollateral
+        - SupplyLiquidity
+        - Unpaused
+        - Upgraded
+        - WithdrawCollateral
+        - WithdrawLiquidity
+      abis:
+        - name: LendingPool
+          file: ./abis/LendingPool.json
+      eventHandlers:
+        - event: Borrow(indexed address,indexed address,uint256)
+          handler: handleBorrow
+        - event: BorrowTokenSet(indexed address)
+          handler: handleBorrowTokenSet
+        - event: CollateralTokenSet(indexed address)
+          handler: handleCollateralTokenSet
+        - event: Initialized(uint64)
+          handler: handleInitialized
+        - event: InterestRateModelSet(address)
+          handler: handleInterestRateModelSet
+        - event: Liquidation(indexed address,indexed address,indexed
+            address,uint256,uint256[],uint256[],uint256[])
+          handler: handleLiquidation
+        - event: LtvSet(uint256)
+          handler: handleLtvSet
+        - event: MinSupplyAmountSet(indexed address,uint256)
+          handler: handleMinSupplyAmountSet
+        - event: Paused(address)
+          handler: handlePaused
+        - event: Repay(indexed address,indexed address,uint256)
+          handler: handleRepay
+        - event: RoleAdminChanged(indexed bytes32,indexed bytes32,indexed bytes32)
+          handler: handleRoleAdminChanged
+        - event: RoleGranted(indexed bytes32,indexed address,indexed address)
+          handler: handleRoleGranted
+        - event: RoleRevoked(indexed bytes32,indexed address,indexed address)
+          handler: handleRoleRevoked
+        - event: RouterSet(address)
+          handler: handleRouterSet
+        - event: SupplyCollateral(indexed address,indexed address,uint256)
+          handler: handleSupplyCollateral
+        - event: SupplyLiquidity(indexed address,indexed address,uint256)
+          handler: handleSupplyLiquidity
+        - event: Unpaused(address)
+          handler: handleUnpaused
+        - event: Upgraded(indexed address)
+          handler: handleUpgraded
+        - event: WithdrawCollateral(indexed address,indexed address,uint256)
+          handler: handleWithdrawCollateral
+        - event: WithdrawLiquidity(indexed address,indexed address,uint256)
+          handler: handleWithdrawLiquidity
+      file: ./src/lending-pool.ts
+  - kind: ethereum
+    name: InterestRateModel
+    network: story
+    source:
+      address: "0xa89Ff50f77A59D6a175c738C3F705B5401BcEbc0"
+      abi: InterestRateModel
+      startBlock: 11693991
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      entities:
+        - InterestRateModelInitialized
+        - LendingPoolBaseRateSet
+        - LendingPoolMaxUtilizationSet
+        - LendingPoolOptimalUtilizationSet
+        - LendingPoolRateAtOptimalSet
+        - InterestRateModelRoleAdminChanged
+        - InterestRateModelRoleGranted
+        - InterestRateModelRoleRevoked
+        - ScaledPercentageSet
+        - InterestRateModelUpgraded
+      abis:
+        - name: InterestRateModel
+          file: ./abis/InterestRateModel.json
+      eventHandlers:
+        - event: Initialized(uint64)
+          handler: handleInitialized
+        - event: LendingPoolBaseRateSet(indexed address,uint256)
+          handler: handleLendingPoolBaseRateSet
+        - event: LendingPoolMaxUtilizationSet(indexed address,uint256)
+          handler: handleLendingPoolMaxUtilizationSet
+        - event: LendingPoolOptimalUtilizationSet(indexed address,uint256)
+          handler: handleLendingPoolOptimalUtilizationSet
+        - event: LendingPoolRateAtOptimalSet(indexed address,uint256)
+          handler: handleLendingPoolRateAtOptimalSet
+        - event: RoleAdminChanged(indexed bytes32,indexed bytes32,indexed bytes32)
+          handler: handleRoleAdminChanged
+        - event: RoleGranted(indexed bytes32,indexed address,indexed address)
+          handler: handleRoleGranted
+        - event: RoleRevoked(indexed bytes32,indexed address,indexed address)
+          handler: handleRoleRevoked
+        - event: ScaledPercentageSet(uint256)
+          handler: handleScaledPercentageSet
+        - event: Upgraded(indexed address)
+          handler: handleUpgraded
+      file: ./src/interest-rate-model.ts

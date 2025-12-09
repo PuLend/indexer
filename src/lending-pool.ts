@@ -42,7 +42,7 @@ import {
   WithdrawCollateral,
   WithdrawLiquidity
 } from "../generated/schema"
-import { getOrCreateMarket, updateBorrowRate, getOrCreateUserLiquidity, updateMarketData } from "./utils"
+import { getOrCreateMarket, updateBorrowRate, getOrCreateUserLiquidity, updateMarketData, updateUserYield } from "./utils"
 
 export function handleBorrow(event: BorrowEvent): void {
   let entity = new Borrow(
@@ -287,9 +287,20 @@ export function handleSupplyLiquidity(event: SupplyLiquidityEvent): void {
 
   updateMarketData(event.address)
 
-  let userLiquidity = getOrCreateUserLiquidity(event.address, event.params.user)
+  let market = getOrCreateMarket(event.address)
+  let userLiquidity = getOrCreateUserLiquidity(
+    event.address,
+    event.params.user,
+    event.params.token,
+    event.block.timestamp
+  )
+
+  // Update yield before modifying balance
+  updateUserYield(userLiquidity, market, event.block.timestamp)
+
   userLiquidity.totalDeposited = userLiquidity.totalDeposited.plus(event.params.amount)
   userLiquidity.currentBalance = userLiquidity.currentBalance.plus(event.params.amount)
+  userLiquidity.token = event.params.token  // Update token in case it wasn't set
   userLiquidity.save()
 }
 
@@ -350,7 +361,17 @@ export function handleWithdrawLiquidity(event: WithdrawLiquidityEvent): void {
 
   updateMarketData(event.address)
 
-  let userLiquidity = getOrCreateUserLiquidity(event.address, event.params.user)
+  let market = getOrCreateMarket(event.address)
+  let userLiquidity = getOrCreateUserLiquidity(
+    event.address,
+    event.params.user,
+    event.params.token,
+    event.block.timestamp
+  )
+
+  // Update yield before modifying balance
+  updateUserYield(userLiquidity, market, event.block.timestamp)
+
   userLiquidity.totalWithdrawn = userLiquidity.totalWithdrawn.plus(event.params.amount)
   userLiquidity.currentBalance = userLiquidity.currentBalance.minus(event.params.amount)
   userLiquidity.save()

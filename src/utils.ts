@@ -36,7 +36,9 @@ export function getOrCreateInterestRateModelConfig(irmAddress: Bytes): InterestR
 
 export function getOrCreateUserLiquidity(
   marketAddress: Bytes,
-  userAddress: Bytes
+  userAddress: Bytes,
+  tokenAddress: Bytes,
+  timestamp: BigInt
 ): UserLiquidity {
   let id = marketAddress.concat(userAddress);
   let userLiquidity = UserLiquidity.load(id);
@@ -45,9 +47,13 @@ export function getOrCreateUserLiquidity(
     userLiquidity = new UserLiquidity(id);
     userLiquidity.market = marketAddress;
     userLiquidity.user = userAddress;
+    userLiquidity.token = tokenAddress;
     userLiquidity.totalDeposited = BIGINT_ZERO;
     userLiquidity.totalWithdrawn = BIGINT_ZERO;
     userLiquidity.currentBalance = BIGINT_ZERO;
+    userLiquidity.currentApy = BIGINT_ZERO;
+    userLiquidity.earnedYield = BIGINT_ZERO;
+    userLiquidity.lastUpdatedTimestamp = timestamp;
     userLiquidity.save();
 
     // Increment user count in market
@@ -57,6 +63,47 @@ export function getOrCreateUserLiquidity(
   }
 
   return userLiquidity;
+}
+
+// Calculate supply APY from borrow rate and utilization
+// Supply APY = Borrow Rate * Utilization Rate
+export function calculateSupplyApy(market: Market): BigInt {
+  if (market.utilization.equals(BIGINT_ZERO)) {
+    return BIGINT_ZERO;
+  }
+  // supplyApy = borrowRate * utilization / WAD
+  return market.borrowRate.times(market.utilization).div(BIGINT_WAD);
+}
+
+// Update user's earned yield based on time elapsed and current APY
+export function updateUserYield(
+  userLiquidity: UserLiquidity,
+  market: Market,
+  currentTimestamp: BigInt
+): void {
+  if (userLiquidity.currentBalance.equals(BIGINT_ZERO)) {
+    userLiquidity.lastUpdatedTimestamp = currentTimestamp;
+    return;
+  }
+
+  let timeElapsed = currentTimestamp.minus(userLiquidity.lastUpdatedTimestamp);
+  if (timeElapsed.le(BIGINT_ZERO)) {
+    return;
+  }
+
+  // Calculate yield: balance * supplyApy * timeElapsed / (WAD * SECONDS_PER_YEAR)
+  let SECONDS_PER_YEAR = BigInt.fromI32(31536000);
+  let supplyApy = calculateSupplyApy(market);
+
+  let yieldEarned = userLiquidity.currentBalance
+    .times(supplyApy)
+    .times(timeElapsed)
+    .div(BIGINT_WAD)
+    .div(SECONDS_PER_YEAR);
+
+  userLiquidity.earnedYield = userLiquidity.earnedYield.plus(yieldEarned);
+  userLiquidity.currentApy = supplyApy;
+  userLiquidity.lastUpdatedTimestamp = currentTimestamp;
 }
 
 export function updateBorrowRate(market: Market): void {

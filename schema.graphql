@@ -276,9 +276,13 @@ type UserLiquidity @entity(immutable: false) {
   id: Bytes! # lendingPool-user composite key
   market: Market!
   user: Bytes! # user address
+  token: Bytes! # token address (borrow token)
   totalDeposited: BigInt! # Total deposited by user
   totalWithdrawn: BigInt! # Total withdrawn by user
   currentBalance: BigInt! # Current balance (deposited - withdrawn)
+  currentApy: BigInt! # Current supply APY (calculated from borrow rate)
+  earnedYield: BigInt! # Accumulated yield earned
+  lastUpdatedTimestamp: BigInt! # Last update timestamp for yield calculation
 }
 
 type Market @entity(immutable: false) {

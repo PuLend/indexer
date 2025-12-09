@@ -1,11 +1,22 @@
 {
-  "base-sepolia": {
+  "story-aeneid": {
     "LendingPool": {
       "address": "0x848fDD471ebad6CFD8AfBfB58ba243782AD9201C",
       "startBlock": 11695085
     },
     "InterestRateModel": {
-      "address": "0xa89Ff50f77A59D6a175c738C3F705B5401BcEbc0"
+      "address": "0xa89Ff50f77A59D6a175c738C3F705B5401BcEbc0",
+      "startBlock": 11695085
+    }
+  },
+  "story": {
+    "LendingPool": {
+      "address": "0x848fDD471ebad6CFD8AfBfB58ba243782AD9201C",
+      "startBlock": 11693991
+    },
+    "InterestRateModel": {
+      "address": "0xa89Ff50f77A59D6a175c738C3F705B5401BcEbc0",
+      "startBlock": 11693991
     }
   }
 }
