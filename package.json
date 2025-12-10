@@ -3,7 +3,9 @@
   "license": "UNLICENSED",
   "scripts": {
     "codegen": "graph codegen",
+    "codegen:mainnet": "graph codegen subgraph.mainnet.yaml",
     "build": "graph build",
+    "build:mainnet": "graph build subgraph.mainnet.yaml",
     "deploy": "graph deploy --node https://api.studio.thegraph.com/deploy/ indexer",
     "create-local": "graph create --node http://localhost:8020/ indexer",
     "remove-local": "graph remove --node http://localhost:8020/ indexer",
